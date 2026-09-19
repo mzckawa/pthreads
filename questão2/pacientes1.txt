@@ -1,0 +1,3 @@
+Maria Silva;1
+João Souza;3
+Ana Costa;1
