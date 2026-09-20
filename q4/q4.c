@@ -1,3 +1,11 @@
+/*
+Solução da questão 4.
+O próprio código já realiza os testes com 1, 2 e 4 núcleos e mostra, ao final, os resultados dos tempos de execução. 
+Para sistemas pequenos (tipo 50x50), é comum acontecer de os melhores tempos serem com 2, 4 e 1 núcleos, respectivamente.
+Entretanto, para sistemas grandes (400x400, como definido nessa versão final), o quarteto de núcleos toma o primeiro lugar. 
+Observei que, quanto maior o sistema, maior a vantagem de desempenho da paralelização máxima.
+*/
+
 #include <pthread.h>
 #include <stdlib.h>
 #include <stdio.h>
