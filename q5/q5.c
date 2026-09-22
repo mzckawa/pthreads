@@ -96,7 +96,7 @@ void *trabalhadora_nucleo(void *arg){
 
         // se a fila, após isso, esvaziou, atualizamos o ponteiro do fim
         if(lista_pronto.inicio == NULL){
-            lista_pronto.fim == NULL;
+            lista_pronto.fim = NULL;
         }
 
         // para passar o mínimo de tempo possível com o mutex travado, destravamo-no antes de executar a tarefa
@@ -109,11 +109,12 @@ void *trabalhadora_nucleo(void *arg){
         free(tarefa_avocada);
 
         // decrementando a quantida de tarefas pendentes e conferindo se o procesos já acabou
+        pthread_mutex_lock(&mutex_fila);
         tarefas_pendentes--;
         if(tarefas_pendentes == 0){
             pthread_cond_signal(&cond_finalizado);
         }
-
+        pthread_mutex_unlock(&mutex_fila);
     
     }
     return NULL; // embora acima haja um laço infinito, é interessante colocar o retorno, para evitar alertas do compilador e outros erros 
