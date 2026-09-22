@@ -1,4 +1,4 @@
-# Pthreads — Projeto de Sistemas Operacionais
+# Pthreads — Projeto 1 de Sistemas Operacionais
 
 ## Questão 1 — Soma de vetor dividida entre N threads
 
@@ -6,9 +6,9 @@ O problema aqui é simples de enunciar mas serve de base pra tudo o resto: temos
 
 A ideia foi dividir o vetor em pedaços do mesmo tamanho (um pedaço por thread) e deixar cada thread responsável por somar só o pedaço dela, guardando o resultado numa variável própria. Como cada thread escreve em uma posição de memória diferente (sua própria struct de dados), não existe disputa nenhuma entre elas — por isso essa questão não usa mutex. A thread principal só entra em ação depois que todas as outras terminaram (usando `pthread_join` pra garantir isso), e aí soma os resultados parciais numa soma final sequencial simples.
 
-Se o número de threads não divide o vetor de forma exata, a última thread fica responsável pelo resto da divisão, pra não perder nenhum elemento.
+Se o número de threads não divide o vetor de forma exata, a última thread fica responsável pelo resto da divisão, para não perder nenhum elemento.
 
-O programa também faz uma soma sequencial de verificação no final, só pra provar que o resultado bate com o método paralelo.
+O programa também faz uma soma sequencial de verificação no final, só para provar que o resultado bate com o método paralelo.
 
 ### Como rodar
 
@@ -44,3 +44,29 @@ gcc pthreadsq2.c -o pthreadsq2 -lpthread
 ```
 
 Cada arquivo passado como argumento vira uma thread/guichê. Os arquivos de exemplo seguem o formato `Nome;Consultorio`, um paciente por linha.
+
+---
+
+## Questão 3 — Leitura e scrita de array com pthreads 
+
+Aqui, a proposta é implementarmos um sistema de leitura e modificação de um vetor de maneira concorrente, evitando condições de disputa. Assim, é permitido que várias threads leitoras acessem o array, enquanto as escritoras precisam atuar completamente sozinhas. 
+
+Para atingir esses requisitos, nós utilizamos os seguintes recursos compartilhados: um mutex que controla a entrada de escritoras no array, uma variável de condição para autorizar leitura, outra para autorizar a escrita e, claro, o vator de dados. 
+
+Note que a separação de variáveis de condição entre "canais de comunicação" separados (isto é, um sinal para acordar somente as leitoras e outro para acordar somente as escritoras) é essencial para usufruirmos da performance das pthreads. 
+
+Ademais, como as variáveis de condição não tem memória, precisamos também de variáveis de estado, leitoras_ativas e escritora_ativa. Aquela serve para contabilizar quantas escritoras estão acessando o array simultaneamente e, quando zerar, mandar o sinal às leitoras, permitindo a escrita. Esta, por sua vez, faz as leitoras esperarem enquanto seu valor é 1, e ativa o sinal pode_ler quando é zero. 
+
+Essa dinâmica é descrita em duas funções, "leitora" e "escritora". Além disso, na main, simulamos a atividade gerando valores aleatórios para serem os índices acessados e os valores alterados. 
+
+### Como rodar
+
+```bash
+gcc q3.c -o q3 -lpthread
+./q3
+```
+
+---
+
+
+
