@@ -90,5 +90,28 @@ Finalmente, como dito no início do arquivo .c, a superioridade dos quatro núcl
 gcc q4.c -o q4 -lpthread
 ./q4
 ```
+---
+
+### Questão 5 - Escalonador de threads para CPUs multicore sem espera ocupada
+
+Nessa questão, exercitamos os conceitos de pthreads, mutexes e variáveis de condição por meio da implementação de um escalonador de tarefas para sistemas multicore. O objetivo do algoritmo é gerenciar a execução de tarefas pendentes distribuindo-as entre N núcleos computacionais. Adotamos, também, o padrão de pool de threads, para atingir maior paralelização e eficiência: N threads trabalhadoras (representando os N núcleos do sistema) são criadas previamente e permanecem ativas aguardando tarefas na fila, eliminando o custo de overhead associado à criação e destruição constante de threads a cada nova tarefa.
+
+Além disso, o conceito-chave dessa questão é a ausência de espera ocupada. Para evitar o desperdício de ciclos de CPU, utilizamos variáveis de condição: quando a fila de tarefas prontas está vazia, os núcleos adormecem em um pthread_cond_wait. A cada nova inserção realizada pela função de agendamento, uma thread trabalhadora é acordada por meio de um pthread_cond_signal para processar o item.
+
+Como recursos compartilhados, temos a fila de tarefas prontas (lista_pronto), o contador de tarefas pendentes (tarefas_pendentes), o mutex de proteção da fila (mutex_fila) e as variáveis de condição (cond_escalonador e cond_finalizado).
+
+A respeito das estruturas de dados, temos a struct Tarefa, que representa os nós da lista encadeada que armazenam o ponteiro para a função a ser executada (funcao, que, nesse exemplo, é "thread_saudar"), seus argumentos (arg) e o ponteiro para o próximo nó (prox), e a struct TarefasProntas, que mantém os ponteiros de início e fim da fila de tarefas prontas.
+
+Quanto às funções, temos Agendar, que aloca dinamicamente uma nova tarefa, insere-a ao final da fila protegida por exclusão mútua e sinaliza à variável de condição para despertar um núcleo ocioso; trabalhadora_nucleo, função executada em laço pelas threads de cada núcleo que retira a primeira tarefa da fila, com exclusão mútua refinada (destravando o mutex durante a execução da função para maximizar a concorrência), e libera a memória alocada, e thread_saudar, que define a tarefa realizada pelas trabalhadoras.
+
+Finalmente, a função main aguarda a conclusão de todas as tarefas agendadas, via pthread_cond_wait na variável cond_finalizado. 
+
+A implementação foi validada com ferramentas como Valgrind e Helgrind, garantindo a ausência de vazamentos de memória e de condições de corrida.
 
 
+### Como rodar
+
+```bash
+gcc q5.c -o q5 -lpthread
+./q5
+```
