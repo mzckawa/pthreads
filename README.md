@@ -68,5 +68,27 @@ gcc q3.c -o q3 -lpthread
 
 ---
 
+## Questão 4 - Aplicação concorrente do método de Jacobi 
+
+Nessa questão, exercitamos os conceitos de pthreads e barreiras por meio da implementação do método de Jacobi, utilizado para aproximar soluções de sistemas lineares. De forma sucinta, o método estima uma solução inicial e, para cada vetor x_k, é aplicado um algoritmo matemático que gera o vetor x_(k+1). 
+
+Encontramos a oportunidade de paralelização ao entendermos que os elementos de um mesmo vetor podem ser calculados de maneira independente entre si. 
+
+Além disso, o conceito-chave dessa questão é o uso de barreiras: como os cálculos de cada elemento de x_(k+1) não necessariamente ocorrem ao mesmo tempo e não é possível avançar para a computação de x_(k+2) sem haver finalizado x_(k+1), é imperativo forçar as threads que terminaram seu trabalho antes a esperar as demais fazê-lo também (sincronização) - e, para tal, utilizamos barreiras. 
+
+Como recursos compartilhados, temos os que descrevem o sistema linear (incógnitas, descritas pela matriz A, termos independentes, descritos pelo vetor b, e vetores de solução x_k e x_kmais1), a barreira e o vetor de dados. 
+
+A respeito das estruturas de dados, temos DadosThread, que organiza as incógnitas a serem processadas pelas threads (que são inicializadas com os valores da estimativa de solução inicial) e timespec, uma struct que nos auxiliou na avaliação de desempenho dos diferentes níveis de paralelização. 
+
+A respeito das funções, temos a que aplica o algoritmo de Jacobi (calculo_jacobi) e a função que cria threads com base na quantidade de núcleos desejada. Para facilitar a correção do exercício, a simulação da escolha de núcleos pelo usuário já está embutida no código: ao rodar o executável, o mesmo cálculo é feito com 1, 2 e 4 threads, e o tempo de execução de cada situação é exibido ao final. 
+
+Finalmente, como dito no início do arquivo .c, a superioridade dos quatro núcleos costuma vigorar para sistemas grandes, de centenas de linhas. Isso se deve ao fato de que a criação de threads e barreiras ocupa bem mais a CPU do que as contas do método em si, de forma que, em sistemas menores, o "ponto ótimo" de performance acaba sendo com 2, e não 4, núcleos.
+
+### Como rodar
+
+```bash
+gcc q4.c -o q4 -lpthread
+./q4
+```
 
 
